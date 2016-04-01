@@ -22,7 +22,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -33,4 +32,18 @@
         android:onClick="AddNewText"
         android:src="@android:drawable/ic_dialog_email" />
 
+
+    <android.support.v7.widget.RecyclerView
+        android:id = "@+id/drawerList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="40dp">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+
+
 </android.support.design.widget.CoordinatorLayout>
+
+

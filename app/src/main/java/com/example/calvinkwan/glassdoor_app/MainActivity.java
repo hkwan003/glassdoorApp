@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.preference.DialogPreference;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "DialogActivity";
     private static final int EXAMPLE_1 = 0;
     private static final int TEXT_ID = 0;
+    private static int counter = 0;
 
 
     @Override
@@ -46,11 +49,18 @@ public class MainActivity extends AppCompatActivity
 
         dialogBuilder.setTitle("Custom dialog");
         dialogBuilder.setMessage("Enter text below");
-        dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener()
+        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener()
         {
             public void onClick(DialogInterface dialog, int whichButton)
             {
+                Toast.makeText(MainActivity.this, "Messaged Saved", Toast.LENGTH_LONG).show();
                 //do something with edt.getText().toString();
+
+                SharedPreferences sharedPreferences = getSharedPreferences("MyData", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("message", edt.getText().toString());
+                editor.commit();
+
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
