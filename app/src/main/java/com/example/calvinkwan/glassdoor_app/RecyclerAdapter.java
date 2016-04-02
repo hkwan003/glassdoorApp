@@ -37,13 +37,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position)
     {
+        TextDescription current = data.get(position);                   //creates TextDescrition object which contains 2 fields, message ID and message
 
+        holder.messageID.setText(current.rowID);                        //traverses arraylist to grab necessary strings to display in recyclerview
+        holder.message.setText(current.message);
     }
 
     @Override
     public int getItemCount()
     {
-        return 0;
+        return data.size();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder

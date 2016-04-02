@@ -24,14 +24,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
 {
 
     private static final String TAG = "DialogActivity";
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    SQLiteDatabase sqLiteDatabase;
+    private RecyclerAdapter adapter;
     DatabaseAdapter dbAdapter;
 
 
@@ -45,11 +47,16 @@ public class MainActivity extends AppCompatActivity
 
         dbAdapter = new DatabaseAdapter(this);              //instantiates object of dbAdapter, calls creation of DB constructor
         recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+    }
 
+    public static void getData()
+    {
+        List<TextDescription> data = new ArrayList<>();
     }
 
 
-    public void showChangeLangDialog() {
+    public void showChangeLangDialog()
+    {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.dialogbox, null);
