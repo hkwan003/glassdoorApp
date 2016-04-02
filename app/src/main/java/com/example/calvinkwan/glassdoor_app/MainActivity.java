@@ -5,18 +5,22 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.preference.DialogPreference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,9 +28,11 @@ public class MainActivity extends AppCompatActivity
 {
 
     private static final String TAG = "DialogActivity";
-    private static final int EXAMPLE_1 = 0;
-    private static final int TEXT_ID = 0;
-    private static int counter = 0;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
+    SQLiteDatabase sqLiteDatabase;
+    DatabaseAdapter dbAdapter;
 
 
     @Override
@@ -37,7 +43,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        dbAdapter = new DatabaseAdapter(this);              //instantiates object of dbAdapter, calls creation of DB constructor
+        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+
     }
+
 
     public void showChangeLangDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -49,18 +59,11 @@ public class MainActivity extends AppCompatActivity
 
         dialogBuilder.setTitle("Custom dialog");
         dialogBuilder.setMessage("Enter text below");
-        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener()
-        {
+        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
-                Toast.makeText(MainActivity.this, "Messaged Saved", Toast.LENGTH_LONG).show();
                 //do something with edt.getText().toString();
-
-                SharedPreferences sharedPreferences = getSharedPreferences("MyData", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("message", edt.getText().toString());
-                editor.commit();
-
+                addUser(edt.getText().toString());
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
@@ -68,6 +71,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 //pass
+                String data = dbAdapter.getAllData();
+                Message.message(MainActivity.this, data);
             }
         });
         AlertDialog b = dialogBuilder.create();
@@ -102,5 +107,25 @@ public class MainActivity extends AppCompatActivity
     public void AddNewText(View view)
     {
         showChangeLangDialog();
+    }
+
+    public void addUser(String messageToInsert)
+    {
+        if(messageToInsert.length() != 0)
+        {
+            long id = dbAdapter.insertData(messageToInsert);
+            if(id < 0)
+            {
+                Message.message(this, "Unsuccessful");
+            }
+            else
+            {
+                Message.message(this, "Successfully inserted a row");
+            }
+        }
+        else
+        {
+            Message.message(this, "Please enter a message");
+        }
     }
 }
