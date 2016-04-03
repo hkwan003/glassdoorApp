@@ -1,40 +1,30 @@
 package com.example.calvinkwan.glassdoor_app;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.nfc.Tag;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.DialogPreference;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
+    DatabaseAdapter adapter;
+    private EditText edt;
+    RecyclerView recyclerView;
 
-    private static final String TAG = "DialogActivity";
-    private RecyclerView recyclerView;
-    private RecyclerView.LayoutManager layoutManager;
-    private RecyclerAdapter adapter;
-    DatabaseAdapter dbAdapter;
 
 
     @Override
@@ -45,14 +35,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        dbAdapter = new DatabaseAdapter(this);              //instantiates object of dbAdapter, calls creation of DB constructor
-        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        openDB();
+        populateList();
+
+
+
     }
 
-    public static void getData()
-    {
-        List<TextDescription> data = new ArrayList<>();
-    }
 
 
     public void showChangeLangDialog()
@@ -62,24 +51,28 @@ public class MainActivity extends AppCompatActivity
         final View dialogView = inflater.inflate(R.layout.dialogbox, null);
         dialogBuilder.setView(dialogView);
 
-        final EditText edt = (EditText) dialogView.findViewById(R.id.editTextDialogUserInput);
+        edt = (EditText) dialogView.findViewById(R.id.editTextDialogUserInput);
 
         dialogBuilder.setTitle("Custom dialog");
         dialogBuilder.setMessage("Enter text below");
-        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton)
-            {
-                //do something with edt.getText().toString();
-                addUser(edt.getText().toString());
-            }
-        });
-        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener()
         {
             public void onClick(DialogInterface dialog, int whichButton)
             {
+                //do something with edt.getText().toString();
+                String temp = edt.getText().toString();
+                if (temp.length() != 0)
+                {
+                    adapter.insertRow(temp);
+                }
+                populateList();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
                 //pass
-                String data = dbAdapter.getAllData();
-                Message.message(MainActivity.this, data);
+                //String data = dbAdapter.getAllData();
+                //Message.message(MainActivity.this, data);
             }
         });
         AlertDialog b = dialogBuilder.create();
@@ -111,28 +104,26 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void AddNewText(View view)
+    public void AddNewText(View view)               //opens dialog box to input message
     {
         showChangeLangDialog();
     }
 
-    public void addUser(String messageToInsert)
+    private void openDB()
     {
-        if(messageToInsert.length() != 0)
-        {
-            long id = dbAdapter.insertData(messageToInsert);
-            if(id < 0)
-            {
-                Message.message(this, "Unsuccessful");
-            }
-            else
-            {
-                Message.message(this, "Successfully inserted a row");
-            }
-        }
-        else
-        {
-            Message.message(this, "Please enter a message");
-        }
+        adapter = new DatabaseAdapter(this);
+        adapter.open();         //instantiates a new instance of a database
     }
+    private void populateList()
+    {
+        Cursor cursor = adapter.getAllRows();
+
+        String[] messageText = new String[] {adapter.KEY_ROWID, adapter.KEY_MESSAGE};       //takes message in cursor object to extra into a string array
+        int[] messageID = new int[] {R.id.messageID, R.id.messageString};
+        SimpleCursorAdapter cursorAdapter;
+        cursorAdapter = new SimpleCursorAdapter(getBaseContext(), R.layout.customrow, cursor, messageText, messageID, 0);
+        ListView myList = (ListView) findViewById(R.id.listView);
+        myList.setAdapter(cursorAdapter);
+    }
+
 }

@@ -5,8 +5,18 @@ package com.example.calvinkwan.glassdoor_app;
  */
 public class TextDescription
 {
-    int rowID;
+    String rowID;
     String message;
+
+    public void setRowID(String row)
+    {
+        rowID = row;
+    }
+
+    public void setMessage(String userMessage)
+    {
+        message = userMessage;
+    }
 
 
 }
